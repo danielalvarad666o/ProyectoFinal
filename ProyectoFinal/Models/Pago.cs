@@ -1,25 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProyectoFinal.Models
 {
-
     public class Pago
     {
+        [Key]
         public int Id { get; set; }
-        public int UserId { get; set; }
-        public int MembresiaId { get; set; }
-        public DateTime FechaPago { get; set; }
-        public decimal Monto { get; set; }
-        public string MetodoPago { get; set; } // Ejemplo: Tarjeta, Efectivo
 
-        // Relación con Usuario
+        [Required]
+        [ForeignKey("User")]
+        public int UserId { get; set; }
         public User User { get; set; }
 
-        // Relación con Membresia
+        [Required]
+        [ForeignKey("Membresia")]
+        public int MembresiaId { get; set; }
         public Membresia Membresia { get; set; }
+
+        [Required]
+        public DateTime FechaPago { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Monto { get; set; }
+
+        [Required]
+        [MaxLength(20)]
+        public string MetodoPago { get; set; } // Ejemplo: Tarjeta, Efectivo
     }
 }

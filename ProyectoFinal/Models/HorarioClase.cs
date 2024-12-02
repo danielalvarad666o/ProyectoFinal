@@ -1,25 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ProyectoFinal.Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProyectoFinal.Models
 {
     public class HorarioClase
     {
+        [Key]
         public int Id { get; set; }
-        public int ClaseId { get; set; }
-        public int EntrenadorId { get; set; }
-        public string DiaSemana { get; set; } // Ejemplo: Lunes
-        public TimeSpan HoraInicio { get; set; }
-        public TimeSpan HoraFin { get; set; }
 
-        // Relación con Clase
+        [Required]
+        [ForeignKey("Clase")]
+        public int ClaseId { get; set; }
         public Clase Clase { get; set; }
 
-        // Relación con Entrenador
+        [Required]
+        [ForeignKey("Entrenador")]
+        public int EntrenadorId { get; set; }
         public Entrenador Entrenador { get; set; }
+
+        [Required]
+        [MaxLength(15)]
+        public string DiaSemana { get; set; } // Ejemplo: Lunes
+
+        [Required]
+        public TimeSpan HoraInicio { get; set; }
+
+        [Required]
+        public TimeSpan HoraFin { get; set; }
     }
 }
