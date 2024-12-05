@@ -1,19 +1,108 @@
 using ProyectoFinal.Models;
 using ProyectoFinal.Service;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ProyectoFinal.Views
 {
-    public partial class Registrar : ContentPage
+
+
+    public partial class Registrar : ContentPage, INotifyPropertyChanged
     {
-        private readonly AppDbContext _dbContext;
+
+
+
+
+        private bool _isBusy;
+
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set
+            {
+                _isBusy = value;
+                OnPropertyChanged();
+            }
+        }
+
+      
+
+
+        private string _name;
+        private string _email;
+        private string _password;
+        private string _phone;
+        private bool _isRegisterButtonEnabled;
+
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                _name = value;
+                OnPropertyChanged();
+                CheckFields();
+            }
+        }
+
+        public string Email
+        {
+            get => _email;
+            set
+            {
+                _email = value;
+                OnPropertyChanged();
+                CheckFields();
+            }
+        }
+
+        public string Password
+        {
+            get => _password;
+            set
+            {
+                _password = value;
+                OnPropertyChanged();
+                CheckFields();
+            }
+        }
+
+        public string Phone
+        {
+            get => _phone;
+            set
+            {
+                _phone = value;
+                OnPropertyChanged();
+                CheckFields();
+            }
+        }
+
+        public bool IsRegisterButtonEnabled
+        {
+            get => _isRegisterButtonEnabled;
+            set
+            {
+                _isRegisterButtonEnabled = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Registrar()
         {
             InitializeComponent();
-            _dbContext = new AppDbContext(new Microsoft.EntityFrameworkCore.DbContextOptions<AppDbContext>());
+            BindingContext = this;
+        }
+
+        private void CheckFields()
+        {
+            IsRegisterButtonEnabled = !string.IsNullOrWhiteSpace(Name) &&
+                                      !string.IsNullOrWhiteSpace(Email) &&
+                                      !string.IsNullOrWhiteSpace(Password) &&
+                                      !string.IsNullOrWhiteSpace(Phone);
         }
 
         private async void OnRegisterClicked(object sender, EventArgs e)
@@ -31,75 +120,27 @@ namespace ProyectoFinal.Views
                 return;
             }
 
-            // Mostrar animación de carga
-            var loadingIndicator = new ActivityIndicator { IsRunning = true };
-            await this.DisplayLoadingAnimation(loadingIndicator);
-
-            // Verificar y guardar los estados antes de registrar al usuario
-            string statusesApiUrl = "http://127.0.0.1:8000/api/statuses";
+            // Mostrar animación de carga y deshabilitar botón
+          
+            RegisterButton.IsEnabled = false;
+            IsBusy = true;
 
             try
             {
-                using (HttpClient client = new HttpClient())
+                // Crear el nuevo usuario
+                var newUser = new
                 {
-                    var response = await client.GetStringAsync(statusesApiUrl);
-                    var statuses = JsonSerializer.Deserialize<Dictionary<string, ApiStatus>>(response);
+                    name,
+                    email,
+                    password,
+                    phone,
+                    birth_date = birthDate.ToString("yyyy-MM-dd")
+                };
 
-                    if (statuses != null)
-                    {
-                        // Convertir los estados obtenidos a entidades Status
-                        // Convertir los estados obtenidos a entidades Status
-                        var newStatuses = statuses.Values.Select(status => new Status
-                        {
-                            Id = status.Id,
-                            Type = status.Type
-                        }).ToList();
+                string userApiUrl = "http://127.0.0.1:8000/api/users/cUser";
+                var json = JsonSerializer.Serialize(newUser);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                        // Guardar todos los estados en la base de datos
-                        _dbContext.Statuses.AddRange(newStatuses);
-                        
-
-                        // Guardar cambios
-                        await _dbContext.SaveChangesAsync();
-
-
-                  
-                        
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                string innerExceptionMessage = ex.InnerException?.Message ?? "No hay detalles adicionales.";
-                await DisplayAlert("Error", $"Error al guardar estados: {ex.Message}\nDetalles: {innerExceptionMessage}", "OK");
-
-                Console.WriteLine($"Error al guardar estados: {ex.Message}");
-                Console.WriteLine($"Detalles: {innerExceptionMessage}");
-            }
-
-
-            finally
-            {
-                // Detener animación de carga
-                await this.HideLoadingAnimation(loadingIndicator);
-            }
-
-            // Crear el nuevo usuario
-            var newUser = new
-            {
-                name,
-                email,
-                password,
-                phone,
-                birth_date = birthDate.ToString("yyyy-MM-dd")
-            };
-
-            string userApiUrl = "http://127.0.0.1:8000/api/users/cUser";
-            var json = JsonSerializer.Serialize(newUser);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            try
-            {
                 using (HttpClient client = new HttpClient())
                 {
                     var response = await client.PostAsync(userApiUrl, content);
@@ -111,23 +152,12 @@ namespace ProyectoFinal.Views
 
                         if (responseData != null && responseData.User != null)
                         {
-                            // Guardar en SQLite
-                            var user = new User
-                            {
-                                Id = responseData.User.Id,
-                                Name = responseData.User.Name,
-                                Email = responseData.User.Email,
-                                Phone = responseData.User.Phone,
-                                BirthDate = DateTime.Parse(responseData.User.BirthDate),
-                                StatusId = responseData.User.StatusId
-                            };
+                            //string responseMessage =
+                            //    $"¡Registro exitoso!\n\nNombre: {responseData.User.Name}\nCorreo: {responseData.User.Email}\nTeléfono: {responseData.User.Phone}\nFecha de Nacimiento: {responseData.User.BirthDate}\nEstado: {responseData.User.StatusId}";
+                            //await DisplayAlert("Éxito", responseMessage, "OK");
 
-                            _dbContext.Users.Add(user);
-                            await _dbContext.SaveChangesAsync();
-
-                            string responseMessage =
-                                $"¡Registro exitoso!\n\nNombre: {responseData.User.Name}\nCorreo: {responseData.User.Email}\nTeléfono: {responseData.User.Phone}\nFecha de Nacimiento: {responseData.User.BirthDate}\nEstado: {responseData.User.StatusId}";
-                            await DisplayAlert("Éxito", responseMessage, "OK");
+                            
+                            await DisplayAlert("Éxito", "Usuario Registrado Exitosamente", "OK");
                             await Navigation.PopAsync();
                         }
                         else
@@ -137,7 +167,8 @@ namespace ProyectoFinal.Views
                     }
                     else
                     {
-                        await DisplayAlert("Error", $"Error del servidor: {response.StatusCode}", "OK");
+                        var errorResponse = await response.Content.ReadAsStringAsync();
+                        await DisplayAlert("Error", $"Error del servidor: {response.StatusCode}\n{errorResponse}", "OK");
                     }
                 }
             }
@@ -145,8 +176,21 @@ namespace ProyectoFinal.Views
             {
                 await DisplayAlert("Error", $"Ocurrió un error: {ex.Message}", "OK");
             }
+            finally
+            {
+                // Ocultar animación de carga y habilitar botón
+                IsBusy = false;
+               
+                RegisterButton.IsEnabled = true;
+            }
         }
 
+        // Implementación de INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         private class ApiStatus
         {
             [JsonPropertyName("id")]
@@ -185,18 +229,11 @@ namespace ProyectoFinal.Views
             [JsonPropertyName("status_id")]
             public int StatusId { get; set; }
         }
-
-        private async Task DisplayLoadingAnimation(ActivityIndicator loadingIndicator)
-        {
-            loadingIndicator.IsVisible = true;
-            this.Content = loadingIndicator;
-            await Task.Delay(500); // Breve retraso para mostrar animación
-        }
-
-        private async Task HideLoadingAnimation(ActivityIndicator loadingIndicator)
-        {
-            loadingIndicator.IsVisible = false;
-            await Task.Delay(500); // Breve retraso para ocultar animación
-        }
     }
+    
+
+
+
+
 }
+

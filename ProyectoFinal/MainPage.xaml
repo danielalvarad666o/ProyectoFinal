@@ -1,22 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProyectoFinal.MainPage"
-             Shell.FlyoutBehavior="Disabled"
-    Shell.NavBarIsVisible="False"
-             >
+                                   Shell.FlyoutBehavior="Disabled"
+Shell.NavBarIsVisible="False">
 
-    <ScrollView  >
+    <Grid>
+
+    <ScrollView>
         <VerticalStackLayout
-            Padding="30,0"
+            Padding="30"
             Spacing="25"
             VerticalOptions="CenterAndExpand">
 
-            <Image
-                Source="images.jpg"
-                
-                Aspect="Center"
-                />
+            <Image Source="images.jpg"     Aspect="Center" />
 
             <Label
                 Text="Iniciar Sesión"
@@ -25,32 +23,36 @@
 
             <Entry
                 x:Name="UsernameEntry"
-                Placeholder="Usuario"
+                Placeholder="Correo"
                 Keyboard="Text"
-                HorizontalOptions="FillAndExpand" />
+                Text="{Binding Email}" />
 
             <Entry
                 x:Name="PasswordEntry"
                 Placeholder="Contraseña"
                 IsPassword="True"
-                HorizontalOptions="FillAndExpand" />
+                Text="{Binding Password}" />
 
             <Button
                 Text="Iniciar Sesión"
-                Clicked="OnLoginClicked"
-                HorizontalOptions="FillAndExpand" />
+                Clicked="OnLogin"
+                x:Name="RegisterButton"
+                IsEnabled="{Binding IsRegisterButtonEnabled}" />
 
             <Button
-       Text="Registrar"
-       Clicked="Onregistrar"
-       HorizontalOptions="FillAndExpand" />
-
-            <Label
-                x:Name="ErrorLabel"
-                TextColor="Red"
-                IsVisible="False"
-                HorizontalOptions="Center" />
+                Text="Registrar"
+                Clicked="OnRegister" />
+            
+            
         </VerticalStackLayout>
     </ScrollView>
-
+        <Grid IsVisible="{Binding IsBusy}" BackgroundColor="Black" Opacity="0.6" 
+        VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                         VerticalOptions="Center" 
+                         HorizontalOptions="Center" 
+                         Color="White" />
+        </Grid>
+    </Grid>
+    
 </ContentPage>

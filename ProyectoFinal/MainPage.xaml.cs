@@ -1,158 +1,179 @@
 ﻿using ProyectoFinal.Service;
-using Microsoft.EntityFrameworkCore;
-using ProyectoFinal.Views;
+using Microsoft.Maui.Controls;
+using System.Text;
+using System.Text.Json;
 
-namespace ProyectoFinal
+namespace ProyectoFinal;
+
+public partial class MainPage : ContentPage
 {
-    public partial class MainPage : ContentPage
+    private string _email;
+    private string _password;
+    private bool _isRegisterButtonEnabled;
+    private bool _isBusy;
+
+    public string Email
     {
-        private AppDbContext _dbContext;
-        private ApiRouter _apiRouter;
-
-        public MainPage()
+        get => _email;
+        set
         {
-            InitializeComponent();
-            _dbContext = InitializeDbContext();
-            CreateDatabaseAsync().Wait();
-            _apiRouter = InitializeApiRouter();
-            InitializeAsync();
+            _email = value;
+            OnPropertyChanged();
+            CheckFields();
         }
+    }
 
-        /// <summary>
-        /// Inicializa el contexto de la base de datos SQLite.
-        /// </summary>
-        private AppDbContext InitializeDbContext()
+    public string Password
+    {
+        get => _password;
+        set
         {
-            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlite("Filename=gym.db3");
-            return new AppDbContext(optionsBuilder.Options);
+            _password = value;
+            OnPropertyChanged();
+            CheckFields();
         }
+    }
 
-        /// <summary>
-        /// Crea la base de datos y las tablas si no existen.
-        /// </summary>
-        private async Task CreateDatabaseAsync()
+    public bool IsRegisterButtonEnabled
+    {
+        get => _isRegisterButtonEnabled;
+        set
         {
-            try
-            {
-                Console.WriteLine("Creando o verificando la base de datos...");
-                await _dbContext.Database.EnsureCreatedAsync();
-                Console.WriteLine("✅ Base de datos y tablas listas.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Error al crear la base de datos: {ex.Message}");
-            }
+            _isRegisterButtonEnabled = value;
+            OnPropertyChanged();
         }
+    }
 
-        /// <summary>
-        /// Inicializa el cliente API.
-        /// </summary>
-        private ApiRouter InitializeApiRouter()
+    public bool IsBusy
+    {
+        get => _isBusy;
+        set
         {
-            string baseUrl = "http://127.0.0.1:8000";
-            return new ApiRouter(baseUrl);
+            _isBusy = value;
+            OnPropertyChanged();
         }
+    }
 
-        /// <summary>
-        /// Método para inicializar pruebas de conexión.
-        /// </summary>
-        private async Task InitializeAsync()
+    public MainPage()
+    {
+        InitializeComponent();
+        BindingContext = this; // Establece el contexto de enlace
+    }
+
+    private void CheckFields()
+    {
+        IsRegisterButtonEnabled =
+            !string.IsNullOrWhiteSpace(Email) &&
+            !string.IsNullOrWhiteSpace(Password);
+    }
+
+    public async void OnLogin(object sender, EventArgs e)
+    {
+        if (IsBusy) return;
+
+        try
         {
-            Console.WriteLine("Iniciando pruebas...");
-            await TestApiAndDatabaseAsync();
-        }
+            IsBusy = true;
+            RegisterButton.IsEnabled = false;
 
-        /// <summary>
-        /// Verifica la conexión con la API y la base de datos.
-        /// </summary>
-        private async Task TestApiAndDatabaseAsync()
-        {
-            Console.WriteLine("Verificando conexión con la API...");
-            bool isApiConnected = await _apiRouter.CheckConnectionAsync();
-            Console.WriteLine(isApiConnected
-                ? "✅ Conexión a la API exitosa."
-                : "❌ No se pudo conectar a la API. Trabajando en modo offline.");
+            var loginData = new { email = Email, password = Password };
+            string loginApiUrl = "http://127.0.0.1:8000/api/users/login";
+            var json = JsonSerializer.Serialize(loginData);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            Console.WriteLine("Verificando conexión con SQLite...");
-            try
-            {
-                Console.WriteLine("✅ Base de datos lista.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Error al conectar con la base de datos: {ex.Message}");
-            }
-        }
+            using HttpClient client = new HttpClient();
 
-        private async void OnShowTablesClicked(object sender, EventArgs e)
-        {
-            try
-            {
-                var tables = await _dbContext.GetTablesAsync();
-                string tableList = string.Join("\n", tables);
-                await DisplayAlert("Tablas en la Base de Datos", tableList, "Cerrar");
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", $"No se pudo obtener la lista de tablas: {ex.Message}", "Cerrar");
-            }
-        }
 
-        private async void Onregistrar(object sender, EventArgs e)
-        {
-            try
-            {
-                await Navigation.PushAsync(new ProyectoFinal.Views.Registrar());
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", $"No se pudo navegar a la página de registro: {ex.Message}", "Cerrar");
-            }
-        }
 
-        private async void OnLoginClicked(object sender, EventArgs e)
-        {
-            string username = UsernameEntry.Text?.Trim();
-            string password = PasswordEntry.Text;
+                var response = await client.PostAsync(loginApiUrl, content);
+            
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            if (response.IsSuccessStatusCode)
             {
-                ErrorLabel.Text = "Por favor, ingrese usuario y contraseña.";
-                ErrorLabel.IsVisible = true;
-                return;
-            }
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var responseData = JsonSerializer.Deserialize<LoginResponse>(responseContent);
 
-            try
-            {
-                bool isConnected = await _apiRouter.CheckConnectionAsync();
 
-                if (isConnected)
+
+
+                if (responseData != null)
                 {
-                    bool loginSuccess = true; // Simulación del resultado de login
 
-                    if (loginSuccess)
-                    {
-                        ErrorLabel.IsVisible = false;
-                        Console.WriteLine("Inicio de sesión exitoso.");
-                    }
-                    else
-                    {
-                        ErrorLabel.Text = "Credenciales inválidas.";
-                        ErrorLabel.IsVisible = true;
-                    }
+                    await DisplayAlert("Inicio de sesión exitoso",
+                        $"Bienvenido {responseData.data.user.name}", "OK");
+
+                   
+
+                    await SecureStorage.Default.SetAsync("token",responseData.data.token);
+                    await SecureStorage.Default.SetAsync("name", responseData.data.user.name);
+                    
+
+                    await SecureStorage.Default.SetAsync("phone", responseData.data.user.phone);
+                   
+                    string cumplaños=  responseData.data.user.birth_date;
+                    await SecureStorage.Default.SetAsync("birth_date", cumplaños);
+                    string id = Convert.ToString( responseData.data.user.id);
+                   await SecureStorage.Default.SetAsync("id", id);
+
+
+
+                    await Navigation.PushAsync(new ProyectoFinal.Views.lobby());
+
+
                 }
                 else
                 {
-                    ErrorLabel.Text = "No se pudo conectar al servidor.";
-                    ErrorLabel.IsVisible = true;
+                    await DisplayAlert("Error", responseData?.msg ?? "Error desconocido.", "OK");
                 }
             }
-            catch (Exception ex)
+            else
             {
-                ErrorLabel.Text = $"Error: {ex.Message}";
-                ErrorLabel.IsVisible = true;
+                await DisplayAlert("Error", $"Error del servidor: {response.StatusCode}", "OK");
             }
         }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Ocurrió un error: {ex.Message}", "OK");
+        }
+        finally
+        {
+            IsBusy = false;
+            RegisterButton.IsEnabled = true;
+        }
+    }
+
+    private async void OnRegister(object sender, EventArgs e)
+    {
+        try
+        {
+            await Navigation.PushAsync(new ProyectoFinal.Views.Registrar());
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo abrir la página de registro: {ex.Message}", "OK");
+        }
+    }
+
+    public class LoginResponse
+    {
+        public int status { get; set; }
+        public string msg { get; set; }
+        public LoginData data { get; set; }
+    }
+
+    public class LoginData
+    {
+        public User user { get; set; }
+        public string token { get; set; }
+    }
+
+     public  class User
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public string email { get; set; }
+        public string phone { get; set; }
+        public string birth_date { get; set; }
+        public int statusId { get; set; }
     }
 }

@@ -2,21 +2,31 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProyectoFinal.Views.Registrar"
-             Shell.FlyoutBehavior="Disabled"
-             Shell.NavBarIsVisible="False">
-    <ScrollView>
-        <VerticalStackLayout Padding="20">
-            <Label Text="Registro de Usuario" FontSize="24" HorizontalOptions="Center" />
+                      Shell.FlyoutBehavior="Disabled"
+Shell.NavBarIsVisible="False">
+    <Grid>
+        <!-- Formulario -->
+        <ScrollView>
+            <StackLayout Padding="20">
+                <Entry x:Name="NameEntry" Placeholder="Nombre" Text="{Binding Name}" />
+                <Entry x:Name="EmailEntry" Placeholder="Correo" Keyboard="Email" Text="{Binding Email}" />
+                <Entry x:Name="PasswordEntry" Placeholder="Contraseña" IsPassword="True" Text="{Binding Password}" />
+                <Entry x:Name="PhoneEntry" Placeholder="Teléfono" Keyboard="Telephone" Text="{Binding Phone}" />
+                <DatePicker x:Name="BirthDatePicker" />
+                <Button x:Name="RegisterButton"
+                        Text="Registrar"
+                        IsEnabled="{Binding IsRegisterButtonEnabled}"
+                        Clicked="OnRegisterClicked" />
+            </StackLayout>
+        </ScrollView>
 
-            <Entry x:Name="NameEntry" Placeholder="Nombre" />
-            <Entry x:Name="EmailEntry" Placeholder="Correo Electrónico" Keyboard="Email" />
-            <Entry x:Name="PasswordEntry" Placeholder="Contraseña" IsPassword="True" />
-            <Entry x:Name="PhoneEntry" Placeholder="Teléfono" Keyboard="Telephone" />
-            <DatePicker x:Name="BirthDatePicker" />
-
-            <Button Text="Registrar" Clicked="OnRegisterClicked" />
-
-            <Label x:Name="StatusLabel" Text="" TextColor="Red" IsVisible="False" />
-        </VerticalStackLayout>
-    </ScrollView>
+        <!-- Indicador de carga -->
+        <Grid IsVisible="{Binding IsBusy}" BackgroundColor="Black" Opacity="0.6" 
+              VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                               VerticalOptions="Center" 
+                               HorizontalOptions="Center" 
+                               Color="White" />
+        </Grid>
+    </Grid>
 </ContentPage>
