@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProyectoFinal.Views.Info"
+             >
+
+    <Grid>
+        <!-- Definir las filas y columnas -->
+        <Grid RowDefinitions="50,*">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Barra de Navegación -->
+            <Button Grid.Row="0" Grid.Column="0" 
+                ImageSource="user.png" Text="Login" 
+                HorizontalOptions="Center" VerticalOptions="Center" />
+
+            <Button Grid.Row="0" Grid.Column="1" 
+                ImageSource="estrella.png" Text="Mis Clases" 
+                HorizontalOptions="Center" VerticalOptions="Center" />
+
+            <Button Grid.Row="0" Grid.Column="2" 
+                ImageSource="cerrar.png" Text="Cerrar Sesión" 
+                HorizontalOptions="Center" VerticalOptions="Center" />
+
+            <!-- Lista de Clases -->
+            <ScrollView Grid.Row="2" Grid.ColumnSpan="4">
+                <CollectionView x:Name="ClasesList" ItemsSource="{Binding Clases}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BorderColor="Black" Padding="10" Margin="5">
+                                <VerticalStackLayout Padding="10">
+                                    <!-- Nombre de la Clase -->
+                                    <HorizontalStackLayout HorizontalOptions="Center">
+                                        <Label Text="{Binding clase.nombre}" FontSize="24" TextColor="Blue" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Descripción -->
+                                    <HorizontalStackLayout>
+                                        <Label Text="Descripción:" FontSize="14" TextColor="Black" />
+                                        <Label Text="{Binding clase.descripcion}" FontSize="14" TextColor="Blue" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Día y Hora -->
+                                    <HorizontalStackLayout Spacing="20">
+                                        <Label Text="Día:" FontSize="14" TextColor="Black" />
+                                        <Label Text="{Binding dia_semana}" FontSize="14" TextColor="Blue" />
+                                        <Label Text="Hora Inicio:" FontSize="14" TextColor="Black" />
+                                        <Label Text="{Binding hora_inicio}" FontSize="14" TextColor="Blue" />
+                                        <Label Text="Hora Fin:" FontSize="14" TextColor="Black" />
+                                        <Label Text="{Binding hora_fin}" FontSize="14" TextColor="Blue" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Información del Entrenador -->
+                                    <HorizontalStackLayout>
+                                        <Label Text="Nombre del Entrenador:" FontSize="14" TextColor="Black" />
+                                        <Label Text="{Binding entrenador.nombre}" FontSize="14" TextColor="Blue" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout>
+                                        <Label Text="Apellido del Entrenador:" FontSize="14" TextColor="Black" />
+                                        <Label Text="{Binding entrenador.apellido}" FontSize="14" TextColor="Blue" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout>
+                                        <Label Text="Correo del Entrenador:" FontSize="14" TextColor="Black" />
+                                        <Label Text="{Binding entrenador.correo}" FontSize="14" TextColor="Blue" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout>
+                                        <Label Text="Teléfono del Entrenador:" FontSize="14" TextColor="Black" />
+                                        <Label Text="{Binding entrenador.telefono}" FontSize="14" TextColor="Blue" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Botón de Inscripción -->
+                                    <Button Text="Inscribirme"
+                                        BackgroundColor="Green"
+                                        TextColor="White"
+                                        HorizontalOptions="Center"
+                                        FontSize="Small" />
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </ScrollView>
+
+        </Grid>
+        <!-- Indicador de Carga -->
+        <Grid IsVisible="{Binding IsBusy}" BackgroundColor="Black" Opacity="0.6" 
+              VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                               VerticalOptions="Center" 
+                               HorizontalOptions="Center" 
+                               Color="White" />
+        </Grid>
+            </Grid>
+</ContentPage>

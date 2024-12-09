@@ -2,16 +2,94 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProyectoFinal.Views.lobby"
-            Shell.FlyoutBehavior="Disabled" Shell.NavBarIsVisible="False">
+             Shell.FlyoutBehavior="Disabled" Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <!-- Barra de Navegación -->
+        <Grid RowDefinitions="50,*">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Botón de Login -->
+            <Button  ImageSource="user.png" Grid.Row="0" Grid.Column="0" Text="Login" HorizontalOptions="Center" VerticalOptions="Center" Clicked="OnLoginClicked"/>
 
 
-    
-    <VerticalStackLayout>
-        
-        
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+            <Button  ImageSource="estrella.png" Grid.Row="0" Grid.Column="1" Text="Mis Clases" HorizontalOptions="Center" VerticalOptions="Center" Clicked="OnLoginClicked"/>
+            <Button ImageSource="cerrar.png" Grid.Row="0" Grid.Column="2" Text="Cerrar Sesión" HorizontalOptions="Center" VerticalOptions="Center" Clicked="OnLogoutClicked"/>
+
+
+
+            <!-- Lista en el Centro -->
+            <ScrollView Grid.Row="2" Grid.Column="1" VerticalOptions="Center">
+                <VerticalStackLayout>
+                    <Label Grid.Row="2" Grid.Column="1" Text="Clases Disponibles" FontSize="18" TextColor="Black" />
+                    <CollectionView x:Name="ClasesList" ItemsSource="{Binding Clases}">
+                        <CollectionView.ItemTemplate  >
+                            <DataTemplate>
+                                <Frame BorderColor="Black" Padding="10" Margin="5">
+                                    <VerticalStackLayout Padding="10">
+                                        <!-- Nombre de la clase -->
+
+                                        <Button Text="{Binding clase.nombre}" 
+        FontSize="16" 
+        TextColor="Blue" 
+        Background="White" 
+        Clicked="OnfavClicked" 
+        CommandParameter="{Binding clase.id}" />
+
+
+                                        <!-- Hora de inicio y fin -->
+                                        <HorizontalStackLayout>
+                                            <Label Text="Hora de inicio:" FontSize="14" TextColor="Black" />
+                                            <Label Text="{Binding hora_inicio}" FontSize="14" TextColor="Blue" />
+                                            
+                                            <Label Text="Hora de fin:" FontSize="14" TextColor="Black" />    
+                                            
+                                            <Label Text="{Binding hora_fin}" FontSize="14" TextColor="Blue" />
+                                        </HorizontalStackLayout>
+
+                                        <!-- Nombre del entrenador -->
+                                        <HorizontalStackLayout>
+                                            <Label Text="Entrenador:" FontSize="14" TextColor="Black" />
+                                            <Label Text="{Binding entrenador.nombre}" FontSize="14" TextColor="Blue" />
+                                        </HorizontalStackLayout>
+
+                                                                            <Button Text="Inscribirme"
+BackgroundColor="Green"
+TextColor="White"
+HorizontalOptions="Center"
+
+ Visual="Default" FontSize="Small" />
+                                      
+
+                                        <!-- Botón verde -->
+                                    
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+
+
+
+
+            <!-- Botón de Registro -->
+            
+        </Grid>
+
+        <!-- Indicador de Carga -->
+        <Grid IsVisible="{Binding IsBusy}" BackgroundColor="Black" Opacity="0.6" 
+              VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                               VerticalOptions="Center" 
+                               HorizontalOptions="Center" 
+                               Color="White" />
+        </Grid>
+    </Grid>
 </ContentPage>
+

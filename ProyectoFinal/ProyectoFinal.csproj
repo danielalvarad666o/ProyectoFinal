@@ -42,6 +42,8 @@
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
+		
+
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\gym.svg" Color="#FFFFFF" BaseSize="128,128" />
 
@@ -54,6 +56,12 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Resources\Images\cerrar.png" />
+	  <None Remove="Resources\Images\estrella.png" />
+	  <None Remove="Resources\Images\user.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -71,16 +79,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Controladores\" />
-	</ItemGroup>
-
-	<ItemGroup>
+	  <MauiXaml Update="Views\Info.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\lobby.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\misClases.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Registrar.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+	<ItemGroup>
+		<MauiImage Include="Resources\AppIcon\basura.svg" ForegroundFile="Resources\AppIcon\basura.svg" Color="black" />
 	</ItemGroup>
 
 </Project>
